@@ -1,15 +1,17 @@
 const mineflayer = require('mineflayer')
 
-function createBot() {
+function startBot() {
+  console.log('Trying to connect...')
+
   const bot = mineflayer.createBot({
     host: 'LITTLESPIDERSMP.aternos.me',
     port: 54334,
-    username: 'SenpaiBOT',
-    version: 1.21.11
+    username: 'AFKBot',
+    version: false
   })
 
   bot.on('spawn', () => {
-    console.log('Joined server')
+    console.log('Connected!')
 
     setTimeout(() => {
       bot.chat('/login YOUR_PASSWORD')
@@ -22,11 +24,7 @@ function createBot() {
         bot.setControlState('jump', false)
       }, 500)
 
-      bot.look(
-        Math.random() * Math.PI * 2,
-        0,
-        true
-      )
+      bot.look(Math.random() * Math.PI * 2, 0, true)
     }, 30000)
   })
 
@@ -38,12 +36,16 @@ function createBot() {
     }
   })
 
-  bot.on('end', () => {
-    console.log('Disconnected. Reconnecting...')
-    setTimeout(createBot, 10000)
-  })
+  function reconnect() {
+    console.log('Retrying in 30 seconds...')
+    setTimeout(startBot, 30000)
+  }
 
-  bot.on('error', console.log)
+  bot.on('end', reconnect)
+  bot.on('kicked', reconnect)
+  bot.on('error', (err) => {
+    console.log(err.message)
+  })
 }
 
-createBot()
+startBot()
